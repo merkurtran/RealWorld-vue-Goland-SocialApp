@@ -269,14 +269,14 @@ func GetSugUser(c *fiber.Ctx) error {
 		}
 		// following
 		for _, id := range singleUser.Following {
-			if slices.Contains(SugListId, id) && id != c.Query("id") {
+			if !slices.Contains(SugListId, id) && id != c.Query("id") {
 				SugListId = append(SugListId, id)
 			}
 		}
 
 		// followers
 		for _, id := range singleUser.Followers {
-			if slices.Contains(SugListId, id) && id != c.Query("id") {
+			if !slices.Contains(SugListId, id) && id != c.Query("id") {
 				SugListId = append(SugListId, id)
 			}
 		}

@@ -354,7 +354,7 @@ func GetPostsUsersBySearch(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"user":  users,
+		"users": users,
 		"posts": posts,
 	})
 
