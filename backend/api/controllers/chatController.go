@@ -106,8 +106,8 @@ func GetMesgsByNums(c *fiber.Ctx) error {
 	// pagenation options
 	options := options.Find()
 	options.SetSort(bson.D{{Key: "_id", Value: -1}})
-	options.SetSkip(int64(from * 2))
-	options.SetLimit(int64(2))
+	options.SetSkip(int64(from * 8))
+	options.SetLimit(int64(8))
 
 	// query the db
 	cursor, err := MessageSchema.Find(ctx, filter, options)
@@ -142,8 +142,7 @@ func GetMesgsByNums(c *fiber.Ctx) error {
 		messages = []models.MessageModel{}
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msgs":   "Message send successfully",
-		"result": messages,
+		"msgs":   messages,
 	})
 }
 

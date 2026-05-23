@@ -43,7 +43,7 @@
                 <!-- chat box -->
                  <div class="chat-messages" v-if="selectedUser != null" style="background: white;">
                     <div class="q-pa-md row justify-center" 
-                    style="overflow-y: auto; max-width: 400px;" ref="messageContainer" @scroll="handlescroll">
+                    style="overflow-y: auto; max-width: 400px; max-height: 500px;" ref="messageContainer" @scroll="handlescroll">
                     <div v-for="msg in messageBetweenUsers" :key="msg._id" style="width: 100%;">
                         <q-chat-message :name="msg.sender === MainUserData._id ? MainUserData.name : selectedUser.name" 
                         :avatar="msg.sender === MainUserData._id ? MainUserData.imageUrl : selectedUser.imageUrl" 
