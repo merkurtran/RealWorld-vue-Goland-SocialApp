@@ -9,7 +9,7 @@ on:
 jobs:
   backend-tests:
     name: Backend Go Tests
-    runs-on: ununtu-latest
+    runs-on: ubuntu-latest
 
     services:
       mongodb:
@@ -36,14 +36,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Instal Dependencies
+      - name: Install Dependencies
         run: |
           go mod tidy
           go mod download
         working-directory: ./backend/api
   
-      - name: Instal test Dependencies
-        run: go get -t ./test/...
+      - name: Install test Dependencies
+        run: go get -t ./tests/...
         working-directory: ./backend/api
 
       - name: Wait For MongoDB to be ready
@@ -55,7 +55,7 @@ jobs:
           echo "mongodb is ready"
 
       - name: Run Go Tests
-        run: go test -v ./test/...
+        run: go test -v ./tests/...
         working-directory: ./backend/api
         env:
           TEST_MONGO_URI: mongodb://localhost:27017
