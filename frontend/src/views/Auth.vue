@@ -3,7 +3,7 @@
     <div class="row q-col-gutter-lg">
         <div class="col-5">
             <q-card class="my-card" style="width: 100%; padding: 10px;">
-                <h1 class="text-h6 text-center">Sigin</h1>
+                <h1 class="text-h6 text-center">Signin</h1>
                 <q-card-section>
                     <form @submit.prevent.stop="Login" class="q-gutter-md">
                         <q-input 
@@ -28,7 +28,7 @@
                 </q-card-section>
             </q-card>
         </div>
-        <div class="col-5">
+        <div class="col-7">
             <q-card class="my-card" style="width: 100%; padding: 10px;">
                 <h1 class="text-h6 text-center">Signup | Create New Account</h1>
                 <q-card-section>
