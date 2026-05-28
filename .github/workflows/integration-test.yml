@@ -1,0 +1,98 @@
+name: Frontend Integration Cypress E2E Testing rotend
+
+on:
+  workflow_call:
+
+jobs:
+  integration-tests:
+    name: Frontend Integration (with backend)
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Backend Environment
+        uses: ./.github/actions/setup-backend/action.yml
+      - name: Setup Frontend Environment
+        uses: ./.github/actions/setup-frontend/action.yml
+      - name: Wait For MongoDB to be ready
+        run: |
+          until nc -z localhost 27017; do
+            echo "waiting for mongodb"
+            sleep 2
+          done
+          echo "mongodb is ready"
+      - name: Start backend API
+        run: |
+          echo "starting backend server..."
+          go run main.go &
+          echo &! > backend.pid
+          sleep 10
+          echo "backend process started with pid $(cat backend.pid)"
+        working-directory: ./backend/api
+        env: 
+          MONGODB_URI: mongodb://localhost:27017
+          PORT: 5005
+
+      - name: Wait For backend api
+        run: |
+          echo "waiting for backend api to be ready..."
+          timeout 60 bash -c 'until nc -z localhost 5005; do sleep 2; done'
+          echo "backend port is open, for testing http response..."
+          timeout 30 bash -c 'until curl -f http://localhost:5005 2>/dev/null; do sleep 2; done'
+          echo "backend api is ready"
+
+      - name: Start Frontend in background
+        run: |
+          echo "starting frontend server on port 1024"
+          sudo nohup npm run serve > frontend.log 2>&1 &
+          echo $! > frontend.pid
+          sleep 10
+          echo "frontend process started with pid $(cat frontend.pid)"
+          if pgrep -f "vue-cli-service serve" > /dev/null; then
+            echo "Vue clid service is running"
+          else
+            echo "vue cli service not found, checking logs:"
+            sudo cat frontend.log || echo "no logs found"
+          fi
+        working-directory: ./frontend
+        env:
+          VUE_APP_API_URL: http://localhost:5005
+
+      - name: Wait For frontend application
+        run: |
+          echo "waiting for frontend application to be ready..."
+          timeout 60 bash -c 'until nc -z localhost 1024; do sleep 2; done'
+          echo "frontend port is open, for testing http response..."
+          timeout 30 bash -c 'until curl -f http://localhost:1024 2>/dev/null; do sleep 2; done'
+          echo "frontend application is ready"
+        working-directory: ./frontend
+
+      - name: Run Cypress E2E Tests
+        run: npm run cy:run:auth
+        working-directory: ./frontend
+        env:
+          CYPRESS_BASE_URL: http://localhost:1024
+          CYPRESS_API_URL: http://localhost:5005
+
+      - name: Stop Applications
+        if: always()
+        run: |
+          if [ -f ./backend/api/backend.pid ]; then
+            kill $(cat ./backend/api/backend.pid) || true
+          fi
+          if [ -f ./frontend/frontend.pid ]; then
+            kill $(cat ./frontend/frontend.pid) || true
+          fi
+          sudo lsof -ti:5005 | xargs -r sudo kill -9 || true
+          sudo lsof -ti:1024 | xargs -r sudo kill -9 || true
