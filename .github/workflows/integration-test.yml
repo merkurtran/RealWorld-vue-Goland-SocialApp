@@ -22,9 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Backend Environment
-        uses: ./.github/actions/setup-backend/action.yml
+        uses: ./.github/actions/setup-backend
       - name: Setup Frontend Environment
-        uses: ./.github/actions/setup-frontend/action.yml
+        uses: ./.github/actions/setup-frontend
       - name: Wait For MongoDB to be ready
         run: |
           until nc -z localhost 27017; do
@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "starting backend server..."
           go run main.go &
-          echo &! > backend.pid
+          echo $! > backend.pid
           sleep 10
           echo "backend process started with pid $(cat backend.pid)"
         working-directory: ./backend/api
