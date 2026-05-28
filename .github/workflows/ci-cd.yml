@@ -12,6 +12,6 @@ jobs:
     secrets: inherit
 
   integration-frontend-tests:
-    uses: ./.github/workflows/integration-tests.yml
+    uses: ./.github/workflows/integration-test.yml
     needs: backend-tests
     secrets: inherit
