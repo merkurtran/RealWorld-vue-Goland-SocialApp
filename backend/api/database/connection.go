@@ -17,6 +17,7 @@ func Connect() {
 	defer cancle()
 
 	// mongoURI := "mongodb://localhost:27017"
+	// Good
 	mongoURI := "mongodb://admin:password@mongodb"
 
 	var err error
