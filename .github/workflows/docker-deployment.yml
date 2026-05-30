@@ -21,14 +21,14 @@ jobs:
 
       - name: build backend image
         run: |
-          docker build ./backend/api --file ./backend/api/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_BACK_API:$DOCKER_TAG
+          docker build . --file ./backend/api/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_BACK_API:$DOCKER_TAG
       - name: push backend image to docker hub
         run: |
           docker push ${{secrets.DOCKER_USER}}/$DOCKER_REPO_BACK_API:$DOCKER_TAG
       
       - name: build frontend image
         run: |
-          docker build ./frontend --file ./frontend/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_FRONTEND:$DOCKER_TAG
+          docker build . --file ./frontend/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_FRONTEND:$DOCKER_TAG
       - name: push frontend image to docker hub
         run: |
           docker push ${{secrets.DOCKER_USER}}/$DOCKER_REPO_FRONTEND:$DOCKER_TAG
