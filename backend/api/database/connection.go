@@ -16,7 +16,8 @@ func Connect() {
 	ctx, cancle := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancle()
 
-	mongoURI := "mongodb://localhost:27017"
+	// mongoURI := "mongodb://localhost:27017"
+	mongoURI := "mongodb://admin:password@mongodb"
 
 	var err error
 	Client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
