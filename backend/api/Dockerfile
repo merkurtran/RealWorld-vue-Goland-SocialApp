@@ -1,9 +1,9 @@
 FROM golang:1.26.1 AS builder
 WORKDIR /usr/src/app
 COPY backend/api/go.mod ./
-COPY ackend/api/go.sum ./
+COPY backend/api/go.sum ./
 RUN go mod download
-COPY ackend/api/ .
+COPY backend/api/ .
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:latest
