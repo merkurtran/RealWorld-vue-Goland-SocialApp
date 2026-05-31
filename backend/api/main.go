@@ -3,13 +3,18 @@ package main
 import (
 	"Server/database"
 	_ "Server/docs"
+	pb "Server/protos"
 	"Server/routes"
+	"Server/servergrpc"
 	"log"
+	"net"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 // @title Fiber Goland Mongo Grpc Websocet etc..
@@ -38,6 +43,23 @@ func main() {
 			return true
 		},
 	}))
+
+	// Setup Grpc Server
+	lis, err := net.Listen("tcp", ":5001")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterRealtimeChatServiceServer(grpcServer, &servergrpc.Server{})
+	reflection.Register(grpcServer)
+	log.Println("grpc server running on port 5001")
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+	// end of setup grpc server
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello word")
