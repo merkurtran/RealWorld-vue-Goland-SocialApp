@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapMutations } from 'vuex';
+import { mapGetters, mapActions, mapMutations, mapState } from 'vuex';
 export default {
   name: 'NavBar',
   data (){
@@ -66,11 +66,20 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['GetUserData'])
+    ...mapGetters(['GetUserData']),
+    ...mapState(['RealTimeNotify']),
+  },
+  watch: {
+    "RealTimeNotify.notifyideslistNumber": async function () {
+        this.UnreadedNotifyCount()
+    },
+    $router: async function() {
+        this.UnreadedNotifyCount()
+    }
   },
   methods: {
     ...mapMutations(['SetData']),
-    ...mapActions(['logout', 'GetUnReadedNotifyNum', 'GetUnreadedMessageNum']),
+    ...mapActions(['logout', 'GetUnReadedNotifyNum', 'GetUnreadedMessageNum', 'StopConnectionToNotify']),
     GoSearch(e) {
         console.log("go", e.target.value)
         this.$router.push({path: '/Search', query: {search: e.target.value}})
@@ -81,6 +90,7 @@ export default {
     },
     LogUserOut() {
         this.logout(),
+        this.StopConnectionToNotify()
         this.$router.push(`/Auth`)
     },
     GoToNotification() {
@@ -88,20 +98,31 @@ export default {
     },
     GoToChat() {
         this.$router.push(`/Chat`)
-    }
+    },
+    async UnreadedNotifyCount() {
+        this.NotifyList = await this.GetUnReadedNotifyNum(this.GetUserData()?.result?._id)
+        let numofunreadednot = 0
+        this.NotifyList.forEach(el => {
+            if (!el.isreaded) {
+                numofunreadednot++
+            }
+        })
+        this.notificationNum = numofunreadednot
+        }
   },
   async mounted() {
     this.SetData();
     // console.log("user data", this.GetUserData())
     //
-    this.NotifyList = await this.GetUnReadedNotifyNum(this.GetUserData()?.result?._id)
-    let numofunreadednot = 0
-    this.NotifyList.forEach(el => {
-        if (!el.isreaded) {
-            numofunreadednot++
-        }
-    })
-    this.notificationNum = numofunreadednot
+    // this.NotifyList = await this.GetUnReadedNotifyNum(this.GetUserData()?.result?._id)
+    // let numofunreadednot = 0
+    // this.NotifyList.forEach(el => {
+    //     if (!el.isreaded) {
+    //         numofunreadednot++
+    //     }
+    // })
+    // this.notificationNum = numofunreadednot
+    await this.UnreadedNotifyCount()
 
     const {total} = await this.GetUnreadedMessageNum(this.GetUserData()?.result?._id)
     this.unReadedMessages = total
