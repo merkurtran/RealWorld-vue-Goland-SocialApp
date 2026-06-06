@@ -3,6 +3,7 @@ package controllers
 import (
 	"Server/database"
 	"Server/models"
+	"Server/servergrpc"
 	"context"
 	"slices"
 	"time"
@@ -181,13 +182,18 @@ func FollowingUser(c *fiber.Ctx) error {
 			User:      models.User{Name: SecondUser.Name, Avata: SecondUser.ImageUrl},
 			CreatedAt: time.Now(),
 		}
-		_, err := NotificationSchema.InsertOne(ctx, notification)
+		res, err := NotificationSchema.InsertOne(ctx, notification)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": "Faild to create notification",
 				"error":   err.Error(),
 			})
 		}
+
+		// set the id field of the notification
+		notification.ID = res.InsertedID.(primitive.ObjectID)
+		// call grpc
+		servergrpc.SendNotification(notification)
 	}
 
 	updateFirst := bson.M{"followers": FirstUser.Followers}

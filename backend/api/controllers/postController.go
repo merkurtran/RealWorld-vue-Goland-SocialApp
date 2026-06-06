@@ -3,6 +3,7 @@ package controllers
 import (
 	"Server/database"
 	"Server/models"
+	"Server/servergrpc"
 	"context"
 	"math"
 	"slices"
@@ -438,7 +439,7 @@ func CommentPost(c *fiber.Ctx) error {
 		User:      models.User{Name: user.Name, Avata: user.ImageUrl},
 		CreatedAt: time.Now(),
 	}
-	_, err = NotificationSchema.InsertOne(ctx, notification)
+	res, err := NotificationSchema.InsertOne(ctx, notification)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Faild to create notification",
@@ -446,6 +447,11 @@ func CommentPost(c *fiber.Ctx) error {
 		})
 	}
 	// end
+	// set the id field of the notification
+	notification.ID = res.InsertedID.(primitive.ObjectID)
+	// call grpc
+	servergrpc.SendNotification(notification)
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"data": post,
 	})
@@ -519,7 +525,7 @@ func LikePost(c *fiber.Ctx) error {
 			User:      models.User{Name: user.Name, Avata: user.ImageUrl},
 			CreatedAt: time.Now(),
 		}
-		_, err = NotificationSchema.InsertOne(ctx, notification)
+		res, err := NotificationSchema.InsertOne(ctx, notification)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": "Faild to create notification",
@@ -527,6 +533,10 @@ func LikePost(c *fiber.Ctx) error {
 			})
 		}
 		// end
+		// set the id field of the notification
+		notification.ID = res.InsertedID.(primitive.ObjectID)
+		// call grpc
+		servergrpc.SendNotification(notification)
 		// End create nofyication
 	}
 

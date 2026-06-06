@@ -32,7 +32,7 @@
 
 <script>
 
-import {mapActions, mapGetters} from 'vuex'
+import {mapActions, mapGetters, mapState} from 'vuex'
 
 
 export default {
@@ -40,6 +40,12 @@ export default {
     data() {
         return {
             NotifyList: []
+        }
+    },
+    watch: {
+        "RealTimeNotify.notifyidData": async function (notify) {
+            console.log("noty", notify)
+            this.NotifyList.unshift(notify)
         }
     },
     async mounted() {
@@ -58,7 +64,8 @@ export default {
         // mark notification as readed
     },
     computed: {
-        ...mapGetters(['GetUserData'])
+        ...mapGetters(['GetUserData']),
+        ...mapState(['RealTimeNotify']),
     },
     methods: {
         ...mapActions(['GetUnReadedNotifyNum', 'MarkNotificationAsReaded']),

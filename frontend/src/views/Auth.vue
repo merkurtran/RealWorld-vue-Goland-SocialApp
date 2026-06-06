@@ -94,7 +94,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['signin', 'signup']),
+    ...mapActions([
+        'signin',
+        'signup',
+        'connectToNotify'
+    ]),
     async Login() {
         console.log("login in data", this.Sin_data)
         
@@ -133,7 +137,8 @@ export default {
                     type: 'positive',
                     message: `Successfully sign in`
                 })
-                // this.$router.push('/')
+                this.connectToNotify()
+                this.$router.push('/')
             }
         }
 
@@ -169,8 +174,9 @@ export default {
                 this.$q.notify({
                     icon: 'eva-alert-circle-outline',
                     type: 'positive',
-                    message: `Successfully sigin up`
+                    message: `Successfully sign up`
                 })
+                this.connectToNotify()
                 // this.$router.push('/')
             }
         }
