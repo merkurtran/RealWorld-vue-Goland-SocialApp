@@ -65,7 +65,12 @@ const Users = {
         async FollowUser(context, ProfileID) {
             try{
                 const {data} = await api.following(ProfileID)
-
+                // 更新 localStorage，使聊天列表能读取到最新的关注列表
+                if (data && data.SecondUser) {
+                    const profile = JSON.parse(localStorage.getItem('profile'))
+                    profile.result = data.SecondUser
+                    localStorage.setItem('profile', JSON.stringify(profile))
+                }
                 return data
             } catch (error) {
                 console.log(error)
