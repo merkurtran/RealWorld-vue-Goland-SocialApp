@@ -67,10 +67,13 @@ export default {
   },
   computed: {
     ...mapGetters(['GetUserData']),
-    ...mapState(['RealTimeNotify', 'RealTimeChat']),
+    ...mapState(['RealTimeNotify', 'RealTimeChat', 'NotificationStore']),
   },
   watch: {
     "RealTimeNotify.notifyideslistNumber": async function () {
+        this.UnreadedNotifyCount()
+    },
+    "NotificationStore.unReadedNotification": async function () {
         this.UnreadedNotifyCount()
     },
     "RealTimeChat.privateMessages": async function () {
