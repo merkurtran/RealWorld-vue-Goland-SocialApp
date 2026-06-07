@@ -26,7 +26,7 @@
                                 <q-item-label>{{ contact.name }}</q-item-label>
                             </q-item-section>
 
-                            <q-item-section side>
+                            <q-item-section side v-if="contact.isOnline">
                                 <q-badge color="positive" rounded/>
                             </q-item-section>
 
@@ -63,7 +63,7 @@
 
 
 <script>
-import { mapGetters, mapActions} from 'vuex';
+import { mapGetters, mapActions, mapState} from 'vuex';
 
 export default {
   name: 'ChatComponent',
@@ -79,11 +79,39 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['GetUserFollowersFollowing', 'GetUserData'])
+    ...mapGetters(['GetUserFollowersFollowing', 'GetUserData']),
+    ...mapState(['RealTimeChat'])
+  },
+  watch: {
+    "RealTimeChat.onlineFriends": function (online) {
+        const onlineFriendsArray = Object.values(online)
+        this.uniqueOnlineUsers = Array.from(new Set(onlineFriendsArray))
+        this.updateOnlineList()
+    },
+    "RealTimeChat.privateMessages": function (messages) {
+        // Handle private messages
+        if (this.contacts.length > 0) {
+            this.contacts.forEach((contact) => {
+                if (contact._id === messages.sender) {
+                    contact.unReadedmessage ++
+                }
+            })
+            if (this.selectedUser && this.selectedUser?._id === messages.sender) {
+                this.messageBetweenUsers.push(messages)
+                setTimeout(() => {
+                    this.scrollDownFunction()
+                }, 100)
+            }
+        }
+    }
   },
   async mounted() {
     this.MainUserData = this.GetUserData()?.result
     await this.GetUsList()
+
+    this.uniqueOnlineUsers = Array.from(new Set(Object.values(this.RealTimeChat.onlineFriends)))
+
+    this.updateOnlineList()
     const saved = localStorage.getItem('chat_selected_user')
     if (saved && this.contacts.length > 0) {
       const savedUser = JSON.parse(saved)
@@ -94,7 +122,16 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['GetUnreadedMessageNum', 'GetMsgsBetweebTwoUsers', 'SendMessage', 'MarkMsgsAsReaded']),
+    ...mapActions(['GetUnreadedMessageNum', 'GetMsgsBetweebTwoUsers', 'SendMessage', 'MarkMsgsAsReaded', 'SendPrivateMessage']),
+    updateOnlineList() {
+        this.contacts.forEach((contact) => {
+            if(this.uniqueOnlineUsers.includes(contact._id)) {
+                contact.isOnline = true 
+            } else {
+                contact.isOnline = false
+            }
+        })
+    },
     handlescroll() {
         const container = this.$refs.messageContainer
         if (container.scrollTop === 0) {
@@ -159,6 +196,7 @@ export default {
         if (this.contacts) {
             this.GetUnreadedMsgList()
         }
+        this.updateOnlineList()
     },
     async selectUser(user) {
         this.messageBetweenUsers = []
@@ -184,13 +222,26 @@ export default {
         var sender = this.MainUserData?._id
         var receiver = this.selectedUser?._id
         var sdata = {content, sender, receiver}
-        this.messageToSend.text = ''
-        var res = await this.SendMessage(sdata)
-        if (res) {
-            this.messageBetweenUsers.push({content, sender, receiver})
-            await this.$nextTick()
-            this.scrollDownFunction()
+
+        if (!this.uniqueOnlineUsers.includes(receiver)) {
+            var res = await this.SendMessage(sdata)
+            if (res) {
+                this.messageBetweenUsers.push({content, sender, receiver})
+                setTimeout(() => {
+                    this.scrollDownFunction()
+                }, 100)
+            }
+        } else {
+            this.SendPrivateMessage(sdata).then(() => {
+                this.messageBetweenUsers.push(sdata)   
+            })
+            setTimeout(() => {
+                    this.scrollDownFunction()
+                }, 100)
         }
+
+        this.messageToSend.text = ''
+        
     }
   }
 }

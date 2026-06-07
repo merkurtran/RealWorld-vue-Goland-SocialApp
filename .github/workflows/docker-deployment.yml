@@ -5,6 +5,8 @@ on:
 
 env:
   DOCKER_REPO_BACK_API: "go-app-api"
+  DOCKER_REPO_BACK_CHAT: "go-app-chat"
+  DOCKER_REPO_BACK_NOTIFICATION: "go-app-notify"
   DOCKER_REPO_FRONTEND: "vue-app-fe"
   DOCKER_TAG: "latest"
 
@@ -25,7 +27,24 @@ jobs:
       - name: push backend image to docker hub
         run: |
           docker push ${{secrets.DOCKER_USER}}/$DOCKER_REPO_BACK_API:$DOCKER_TAG
-      
+
+
+      - name: build backend realTimeChat
+        run: |
+          docker build . --file ./backend/realTimeChat/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_BACK_CHAT:$DOCKER_TAG
+      - name: push realTimeChat image to docker hub
+        run: |
+          docker push ${{secrets.DOCKER_USER}}/$DOCKER_REPO_BACK_CHAT:$DOCKER_TAG
+
+
+      - name: build backend realTimeNotification
+        run: |
+          docker build . --file ./backend/realTimeNotification/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_BACK_NOTIFICATION:$DOCKER_TAG
+      - name: push realTimeNotification image to docker hub
+        run: |
+          docker push ${{secrets.DOCKER_USER}}/$DOCKER_REPO_BACK_NOTIFICATION:$DOCKER_TAG
+
+
       - name: build frontend image
         run: |
           docker build . --file ./frontend/Dockerfile --tag ${{ secrets.DOCKER_USER }}/$DOCKER_REPO_FRONTEND:$DOCKER_TAG

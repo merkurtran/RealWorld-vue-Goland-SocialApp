@@ -67,19 +67,23 @@ export default {
   },
   computed: {
     ...mapGetters(['GetUserData']),
-    ...mapState(['RealTimeNotify']),
+    ...mapState(['RealTimeNotify', 'RealTimeChat']),
   },
   watch: {
     "RealTimeNotify.notifyideslistNumber": async function () {
         this.UnreadedNotifyCount()
     },
+    "RealTimeChat.privateMessages": async function () {
+        this.unReadedMessages = this.unReadedMessages + 1
+    },
     $router: async function() {
         this.UnreadedNotifyCount()
+        this.unreadMessageCount()
     }
   },
   methods: {
     ...mapMutations(['SetData']),
-    ...mapActions(['logout', 'GetUnReadedNotifyNum', 'GetUnreadedMessageNum', 'StopConnectionToNotify']),
+    ...mapActions(['logout', 'GetUnReadedNotifyNum', 'GetUnreadedMessageNum', 'StopConnectionToNotify', 'StopConnectionToChat']),
     GoSearch(e) {
         console.log("go", e.target.value)
         this.$router.push({path: '/Search', query: {search: e.target.value}})
@@ -91,6 +95,7 @@ export default {
     LogUserOut() {
         this.logout(),
         this.StopConnectionToNotify()
+        this.StopConnectionToChat()
         this.$router.push(`/Auth`)
     },
     GoToNotification() {
@@ -108,7 +113,11 @@ export default {
             }
         })
         this.notificationNum = numofunreadednot
-        }
+    },
+    async unreadMessageCount() {
+        const {total} = await this.GetUnreadedMessageNum(this.GetUserData()?.result?._id)
+        this.unReadedMessages = total
+    }
   },
   async mounted() {
     this.SetData();

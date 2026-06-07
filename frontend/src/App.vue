@@ -23,14 +23,18 @@ export default {
     ...mapActions([
       'connectToNotify',
       'StopConnectionToNotify',
+      'createChatConnection',
+      'StopConnectionToChat'
     ]),
   },
   mounted() {
     this.SetData();
     this.connectToNotify();
+    this.createChatConnection();
   },
   beforeUnmount() {
     this.StopConnectionToNotify();
+    this.StopConnectionToChat();
   },
   components: {NavBar}
 }
