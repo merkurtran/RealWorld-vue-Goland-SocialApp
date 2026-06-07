@@ -10,7 +10,10 @@ import (
 )
 
 func GetFollowingFollowersClient(id string) ([]*protos.UserIDsList, error) {
-	conn, err := grpc.NewClient(":5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// conn, err := grpc.NewClient(":5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	// DevOps docker Compose usage
+	conn, err := grpc.NewClient("GolangApiServer:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Printf("did not connect: %v", err)
@@ -31,7 +34,9 @@ func GetFollowingFollowersClient(id string) ([]*protos.UserIDsList, error) {
 }
 
 func SendMessageClient(sender, receiver, content string) error {
-	conn, err := grpc.NewClient(":5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// conn, err := grpc.NewClient(":5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	conn, err := grpc.NewClient("GolangApiServer:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Printf("did not connect: %v", err)

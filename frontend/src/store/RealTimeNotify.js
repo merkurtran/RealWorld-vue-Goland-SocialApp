@@ -31,7 +31,7 @@ const RealTimeNotify = {
     async connectToNotify(context){
         if(JSON.parse(localStorage.getItem('profile')) && context.state.ws === null) {
             const Userid = JSON.parse(localStorage.getItem('profile')).result._id
-            const uri = process.env.VUE_APP_RealTineNotificationUrl
+            const uri = process.env.VUE_APP_RealTimeNotificationUrl
             const ws = new WebSocket(`${uri}${Userid}`)
 
             ws.onopen = () => {

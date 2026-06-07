@@ -97,7 +97,8 @@ export default {
     ...mapActions([
         'signin',
         'signup',
-        'connectToNotify'
+        'connectToNotify',
+        'createChatConnection'
     ]),
     async Login() {
         console.log("login in data", this.Sin_data)
@@ -138,6 +139,7 @@ export default {
                     message: `Successfully sign in`
                 })
                 this.connectToNotify()
+                this.createChatConnection()
                 this.$router.push('/')
             }
         }
@@ -177,6 +179,7 @@ export default {
                     message: `Successfully sign up`
                 })
                 this.connectToNotify()
+                this.createChatConnection()
                 // this.$router.push('/')
             }
         }
