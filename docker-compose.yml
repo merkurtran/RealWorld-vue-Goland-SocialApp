@@ -1,7 +1,7 @@
-version: '3'
 services:
   GolangApiServer:
     image: skrjmn/go-app-api
+    platform: linux/amd64
     container_name: GolangApiServer
     restart: unless-stopped
     ports:
@@ -12,6 +12,7 @@ services:
       - mongodb
   GolangChatService:
     image: skrjmn/go-app-chat
+    platform: linux/amd64
     container_name: GolangChatService
     restart: unless-stopped
     ports:
@@ -23,6 +24,7 @@ services:
       - GolangApiServer
   GolangNotifyService:
     image: skrjmn/go-app-notify
+    platform: linux/amd64
     container_name: GolangNotifyService
     restart: unless-stopped
     ports:
@@ -35,6 +37,7 @@ services:
       - GolangApiServer
   VueServer:
     image: skrjmn/vue-app-fe
+    platform: linux/amd64
     container_name: VueServer
     restart: unless-stopped
     ports:
